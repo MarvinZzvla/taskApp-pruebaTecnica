@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TasksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'http://task-app-site.s3-website-us-east-1.amazonaws.com'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowCredentials: true
+
+  TasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: TasksLambda
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.11
+      CodeUri: src/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          SECRET_KEY: mysecret
+          MONGO_URI: mongodb+srv://zavaladev0405:B9RvG2kwWLz2myNQ@taskcluster.pjqef.mongodb.net/?retryWrites=true&w=majority&appName=TaskCluster
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        GetTasks:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: GET
+            RestApiId: !Ref TasksApi
+        CreateTask:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: POST
+            RestApiId: !Ref TasksApi
+        UpdateTask:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: PUT
+            RestApiId: !Ref TasksApi
+        DeleteTask:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: DELETE
+            RestApiId: !Ref TasksApi
+        GetUsers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: GET
+            RestApiId: !Ref TasksApi
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: POST
+            RestApiId: !Ref TasksApi
+        UpdateUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: PUT
+            RestApiId: !Ref TasksApi
+        DeleteUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: DELETE
+            RestApiId: !Ref TasksApi
+        LoginUser:
+          Type: Api
+          Properties:
+            Path: /users/login
+            Method: POST
+            RestApiId: !Ref TasksApi

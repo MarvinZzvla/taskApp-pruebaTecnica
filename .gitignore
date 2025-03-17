@@ -1,0 +1,79 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python general
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.virtualenv/
+pip-log.txt
+pip-delete-this-directory.txt
+*.swp
+
+# Virtual environment (por si usas otra carpeta)
+*/.venv/
+
+# Configuración local y archivos de entorno
+.env
+.env.local
+*.secret
+config.json
+
+# Caché de herramientas de compilación
+build/
+dist/
+*.egg-info/
+.eggs/
+.wheelhouse/
+*.egg
+
+# Archivos de logs y debugging
+logs/
+*.log
+debug.log
+
+# Archivos de AWS SAM
+.aws-sam/
+.sam/
+template.yaml.saved
+
+# Dependencias en contenedores
+*.dockerfile
+*.dockerenv
+.Dockerfile.swp
+.dockerignore
+
+# IDE y editor de texto
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Archivos de AWS Lambda Layers
+layer/
+
