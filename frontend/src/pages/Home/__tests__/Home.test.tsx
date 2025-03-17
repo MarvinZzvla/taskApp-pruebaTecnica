@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, it, vi, beforeEach, expect } from "vitest";
 import Home from "../Home";
+import userEvent from "@testing-library/user-event";
 import {
   getTasks,
   createTasks,
@@ -13,6 +14,13 @@ import { getUsers } from "../../../api/apiUsers";
 // Mock the API calls
 vi.mock("../../../api/apiTask");
 vi.mock("../../../api/apiUsers");
+vi.mock("react-router-dom", () => ({
+  ...(vi.importActual("react-router-dom") as any),
+  useNavigate: () => vi.fn(),
+  BrowserRouter: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
 
 const mockTasks = [
   {
@@ -48,56 +56,29 @@ const mockUsers = [
 
 describe("Home Component", () => {
   beforeEach(() => {
-    // Reset all mocks before each test
     vi.clearAllMocks();
-
-    // Setup default mock implementations
     vi.mocked(getTasks).mockResolvedValue(mockTasks);
     vi.mocked(getUsers).mockResolvedValue(mockUsers);
   });
 
-  it("renders the home page with task list view by default", async () => {
+  it("should fetch and display tasks on mount", async () => {
     render(
       <BrowserRouter>
         <Home />
       </BrowserRouter>
     );
 
-    // Wait for tasks to load
     await waitFor(() => {
-      expect(screen.getByText("Tasks")).toBeInTheDocument();
+      expect(getTasks).toHaveBeenCalled();
+      expect(getUsers).toHaveBeenCalled();
     });
 
-    // Check if tasks are rendered
     expect(screen.getByText("Test Task 1")).toBeInTheDocument();
     expect(screen.getByText("Test Task 2")).toBeInTheDocument();
   });
 
-  it("can switch between different views", async () => {
-    render(
-      <BrowserRouter>
-        <Home />
-      </BrowserRouter>
-    );
-
-    // Wait for initial render
-    await waitFor(() => {
-      expect(screen.getByText("Tasks")).toBeInTheDocument();
-    });
-
-    // Switch to Chart view
-    const chartButton = screen.getByText("Task Chart");
-    fireEvent.click(chartButton);
-    expect(screen.getByText("Task Status Chart")).toBeInTheDocument();
-
-    // Switch to Users view
-    const usersButton = screen.getByText("Users");
-    fireEvent.click(usersButton);
-    expect(screen.getByText("User Management")).toBeInTheDocument();
-  });
-
-  it("can add a new task", async () => {
-    vi.mocked(createTasks).mockResolvedValue({ task_id: "3" });
+  it("should handle task creation", async () => {
+    vi.mocked(createTasks).mockResolvedValue({ task_id: "new-task-id" });
 
     render(
       <BrowserRouter>
@@ -105,30 +86,34 @@ describe("Home Component", () => {
       </BrowserRouter>
     );
 
-    // Click add task button
-    const addButton = screen.getByText("Add Task");
-    fireEvent.click(addButton);
+    // Open dialog
+    const addButton = screen.getByRole("button", { name: /add task/i });
+    await userEvent.click(addButton);
 
-    // Fill in the form
-    const titleInput = screen.getByLabelText("Task Title");
-    const descriptionInput = screen.getByLabelText("Description");
-
-    fireEvent.change(titleInput, { target: { value: "New Task" } });
-    fireEvent.change(descriptionInput, {
-      target: { value: "New Description" },
+    // Fill form
+    const titleInput = screen.getByRole("textbox", { name: /task title/i });
+    const descriptionInput = screen.getByRole("textbox", {
+      name: /description/i,
     });
 
-    // Submit the form
-    const submitButton = screen.getByText("Add");
-    fireEvent.click(submitButton);
+    await userEvent.type(titleInput, "New Task");
+    await userEvent.type(descriptionInput, "New Description");
 
-    // Verify API was called
+    // Submit
+    const submitButton = screen.getByRole("button", { name: /add/i });
+    await userEvent.click(submitButton);
+
     await waitFor(() => {
-      expect(createTasks).toHaveBeenCalled();
+      expect(createTasks).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "New Task",
+          description: "New Description",
+        })
+      );
     });
   });
 
-  it("can delete a task", async () => {
+  it("should handle task deletion", async () => {
     render(
       <BrowserRouter>
         <Home />
@@ -139,17 +124,15 @@ describe("Home Component", () => {
       expect(screen.getByText("Test Task 1")).toBeInTheDocument();
     });
 
-    // Find and click delete button for first task
-    const deleteButtons = screen.getAllByTestId("delete-task-button");
-    fireEvent.click(deleteButtons[0]);
+    const deleteButton = screen.getByTestId("delete-task-button-1");
+    await userEvent.click(deleteButton);
 
-    // Verify API was called
     await waitFor(() => {
       expect(deleteTasks).toHaveBeenCalledWith("1");
     });
   });
 
-  it("can update task status", async () => {
+  it("should handle task status update", async () => {
     render(
       <BrowserRouter>
         <Home />
@@ -160,13 +143,40 @@ describe("Home Component", () => {
       expect(screen.getByText("Test Task 1")).toBeInTheDocument();
     });
 
-    // Find and change status for first task
-    const statusSelect = screen.getAllByLabelText("Status")[0];
-    fireEvent.change(statusSelect, { target: { value: "completed" } });
+    const statusSelect = screen.getAllByRole("combobox", {
+      name: /status/i,
+    })[0];
+    await userEvent.click(statusSelect);
+    const completedOption = screen.getByRole("option", { name: /completed/i });
+    await userEvent.click(completedOption);
 
-    // Verify API was called
     await waitFor(() => {
-      expect(updateTasks).toHaveBeenCalled();
+      expect(updateTasks).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "1",
+          status: "completed",
+        })
+      );
     });
+  });
+
+  it("should switch between views", async () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    );
+
+    // Switch to Chart view
+    fireEvent.click(screen.getByText("Task Chart"));
+    expect(screen.getByText("Task Status Chart")).toBeInTheDocument();
+
+    // Switch to Users view
+    fireEvent.click(screen.getByText("Users"));
+    expect(screen.getByText("User Management")).toBeInTheDocument();
+
+    // Switch back to List view
+    fireEvent.click(screen.getByText("Task List"));
+    expect(screen.getByText("Tasks")).toBeInTheDocument();
   });
 });

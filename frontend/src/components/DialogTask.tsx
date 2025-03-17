@@ -79,6 +79,7 @@ function DialogComponent({
             onChange={handleInputChange}
             sx={{ mb: 2, mt: 1 }}
             required
+            aria-label="Task Title"
           />
           <TextField
             margin="dense"
@@ -93,6 +94,7 @@ function DialogComponent({
             value={editingTask ? editingTask.description : newTask.description}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
+            aria-label="Description"
           />
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="status-label">Status</InputLabel>

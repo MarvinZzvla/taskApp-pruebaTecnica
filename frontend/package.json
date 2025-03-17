@@ -8,7 +8,9 @@
     "host": "vite --host",
     "build": "vite build",
     "test": "vitest",
-    "coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
     "lint": "eslint .",
     "preview": "vite preview"
   },

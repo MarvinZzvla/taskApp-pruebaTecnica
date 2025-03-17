@@ -166,6 +166,7 @@ function ListView({
                       size="small"
                       color="error"
                       onClick={() => deleteTask(task.id)}
+                      data-testid={`delete-task-button-${task.id}`}
                     >
                       <DeleteIcon />
                     </IconButton>
