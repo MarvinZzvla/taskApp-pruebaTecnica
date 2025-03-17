@@ -1,5 +1,5 @@
-from tasks import get_tasks, create_task, update_task, delete_task
-from users import get_users, create_user, update_user, delete_user, login_user
+from src.tasks import get_tasks, create_task, update_task, delete_task
+from src.users import get_users, create_user, update_user, delete_user, login_user
 
 def lambda_handler(event, context):
    

@@ -1,0 +1,6 @@
+pytest
+pytest-mock
+pymongo[srv]==4.5.0
+bson==0.5.10
+python-jwt
+werkzeug 

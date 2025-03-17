@@ -4,7 +4,7 @@ import uuid
 import json
 from datetime import datetime, timedelta
 from pymongo.errors import PyMongoError
-from db import users_collection
+from src.db import users_collection
 from werkzeug.security import generate_password_hash, check_password_hash
 
 SECRET_KEY = os.getenv("SECRET_KEY", "mysecretkey")
