@@ -120,32 +120,8 @@ aws s3 sync build/ s3://task-app-site
 
 \# Desplegar en AWS
 
-serverless deploy
-
-\## 📝 Estructura del Proyecto
-
-task-app/
-
-├── frontend/
-
-│ ├── src/
-
-│ ├── public/
-
-│ └── package.json
-
-└── backend/
-
-├── handlers/
-
-├── tests/
-
-├── requirements.txt
-
-└── serverless.yml
+sam deploy
 
 \## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo \[LICENSE.md\](LICENSE.md) para más detalles.
-
-\## 🤝 Contacto
